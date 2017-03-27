@@ -1,10 +1,13 @@
 # Design choices
 - Use openssl CLI for encryption/decryption, key generation
-    - Assuming we have a file called 'encryptme' and a file 'key' generated with openssl ``openssl enc -aes-256-cbc -k secret -P -md sha256`` where secret is really just some noise to make 
+    - Assuming we have a file called 'encryptme' and a file 'key' generated with openssl ``openssl enc -aes-256-cbc -p pass:secret -P -md sha256`` where secret is really just some noise to make 
     - Encrypt with ``openssl enc -aes-256-cbc -e -in encryptme -out encrypted -pass file:key``
     - Decrypt with ``openssl enc -aes-256-cbc -d -in encrypted -pass file:key``
 
 - We will choose one of the algorithms given ``openssl ciphers -v 'AES+HIGH'``
+
+- I think we should encrypt the randomly generated key, such that for proper authentication, someone would need the key, the password store, and the master password (what we encrypt the key with). This is sometimes done on ssh private keys, so we should be able to follow the same steps, and openssl understands those keys.
+    - We could store the salt locally. Then when we need the key, we generate it with ``openssl enc -aes-256-cbc -S 33B4E326D1EB90E7 -P -md sha256 -pass stdin``, which will take input from stdin as the password.
 
 # Resources
 
@@ -19,6 +22,8 @@
 [Paper on password manager databases](https://www.cs.ox.ac.uk/files/6487/pwvault.pdf)
 
 [Google drive api](https://developers.google.com/drive/)
+
+[Improved ssh key encryption](https://martin.kleppmann.com/2013/05/24/improving-security-of-ssh-private-keys.html)
 
 ### Good reference projects (Similar password managers):
 
