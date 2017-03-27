@@ -18,6 +18,8 @@
 
 [Paper on password manager databases](https://www.cs.ox.ac.uk/files/6487/pwvault.pdf)
 
+[Google drive api](https://developers.google.com/drive/)
+
 ### Good reference projects (Similar password managers):
 
 [pass](https://www.passwordstore.org/) - Cons: it stores the passwords in a series of files (directories), giving away that a user has an account with a given site - Pros: ``pass -c`` is really cool, we should steal that. Their design is very solid and well though through. We should steal most of it...
