@@ -6,12 +6,17 @@
 
 - We will choose one of the algorithms given ``openssl ciphers -v 'AES+HIGH'``
 
+- Or, use gpg (what pass uses)
+    - Encrypt file.txt ``gpg -o filename --symmetric --cipher-algo AES256 file.txt``
+    - ``gpg -o og_file.txt -d file.txt.gpg``
+    - Can't use a salt?
+
 - I think we should encrypt the randomly generated key, such that for proper authentication, someone would need the key, the password store, and the master password (what we encrypt the key with). This is sometimes done on ssh private keys, so we should be able to follow the same steps, and openssl understands those keys.
     - We could store the salt locally. Then when we need the key, we generate it with ``openssl enc -aes-256-cbc -S 33B4E326D1EB90E7 -P -md sha256 -pass stdin``, which will take input from stdin as the password.
 
 # Resources
 
-[Man page](https://www.openssl.org/docs/man1.0.1/apps/openssl.html)
+[OpenSSL Man page](https://www.openssl.org/docs/man1.0.1/apps/openssl.html)
 
 [Intro page](https://users.dcc.uchile.cl/~pcamacho/tutorial/crypto/openssl/openssl_intro.html)
 
@@ -24,6 +29,8 @@
 [Google drive api](https://developers.google.com/drive/)
 
 [Improved ssh key encryption](https://martin.kleppmann.com/2013/05/24/improving-security-of-ssh-private-keys.html)
+
+[Tutorial for building Pass (incomplete)](https://github.com/snaptoken/pass-tutorial)
 
 ### Good reference projects (Similar password managers):
 
