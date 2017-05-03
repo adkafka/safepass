@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+from DillGPG import DillGPG
+import json
+import sys
+import os.path
+
+SAFEPASS_CONFIG = os.path.join(os.path.expanduser("~"),".safepass")
+
+def file_exists_and_not_empty(filename):
+    return os.path.isfile(filename) && os.stat(filename).st_size>0
+
+def parse_settings():
+    if os.path.isfile(SAFEPASS_CONFIG):
+        with open(SAFEPASS_CONFIG,"r") as settings_file:
+            return json.loads(settings_file.read())
+
+    # No user config given, lets provide them the default
+    init()
+    return parse_settings()
+
+
+def init():
+    # If the config file already exists, throw error
+    if os.path.isfile(SAFEPASS_CONFIG):
+        print("Error in initializer, file %s already exists"%SAFEPASS_CONFIG)
+        sys.exit(1)
+
+    # Set up the default settings
+    default_settings = { 
+            "pass_store_path" : os.path.join(os.path.expanduser("~"),".safepassstore" )
+            }
+
+    # Save the default settings
+    with open(SAFEPASS_CONFIG,"w") as settings_file:
+        json_str = json.dumps(default_settings)
+        settings_file.write(json_str)
+        return
+
+def main():
+    settings = parse_settings()
+    if not file_exists_and_not_empty(settings["pass_store_path"]):
+        #initialize object
+        pass_store = {}
+
+
+
+if __name__ == '__main__':
+    main()
