@@ -200,6 +200,8 @@ class PasswordStore:
         elif option=="password":
             new_pass = get_password(ask="Enter new password:")
             chosen_pw.password = new_pass
+        else:
+            print("Invalid option provided, must be either 'note' or 'password'")
 
         return True
 
