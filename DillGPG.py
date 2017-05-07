@@ -1,10 +1,12 @@
 import gnupg
 import dill
 import sys
+import os
 
+GPGHOME_DEFAULT = os.path.join(os.path.expanduser("~"),".gnupg")
 
 class DillGPG:
-    def __init__(self,gpghome='~/.gnupg',algo='AES256'):
+    def __init__(self,gpghome=GPGHOME_DEFAULT,algo='AES256'):
         self.gpg = gnupg.GPG(gnupghome=gpghome,use_agent=True)
         self.algo = algo
 

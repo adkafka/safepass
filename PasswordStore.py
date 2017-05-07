@@ -1,3 +1,4 @@
+from __future__ import print_function
 import datetime
 import getpass
 import time
@@ -26,18 +27,22 @@ class Domain:
         return False
 
     def select_password(self):
-        print(self)
+        print(self, end='')
+        print(self.str_passwords())
         print("")
         print("Please enter the ID of the desired password: ")
         num_retries = 3
         while num_retries > 0:
-            new_id = int(raw_input())
-            ret_pass = self.get_pass(new_id)
-            if ret_pass==False:
-                print("Could not find password with that ID belonging to this domain.")
-                print("Please try again with a valid ID")
-            else:
-                return ret_pass
+            try:
+                new_id = int(raw_input())
+                ret_pass = self.get_pass(new_id)
+                if ret_pass==False:
+                    print("Could not find password with that ID belonging to this domain.")
+                    print("Please try again with a valid ID")
+                else:
+                    return ret_pass
+            except ValueError:
+                print("Must input valid integer, try again")
 
             num_retries-=1
 
@@ -49,12 +54,18 @@ class Domain:
         ret+="+ {}\n".format(self.name)
         ret+=" \\ Created: {}\n".format(time_str(self.created_on))
         ret+=" \\ Last Used: {}\n".format(time_str(self.last_accessed))
+        ret+=" \\ Number of PWs: {}\n".format(len(self.passwords))
+
+        return ret
+    
+    def str_passwords(self):
+        ret = ""
         self.passwords.sort(key=lambda r: r.last_accessed, reverse=True)
         for password in self.passwords:
             ret+=str(password)
-        ret+=("--------------------------\n")
 
         return ret
+
 
 class Password:
     def __init__(self,password,id_,notes=""):
@@ -90,16 +101,44 @@ class PasswordStore:
 
         self.db[domain].add_password(pw,self.new_id(),notes)
 
+    # TODO, add domain specific ls
     def ls(self):
-        domain_objs = []
-        # Print every domain
-        for _,val in self.db.iteritems():
-            domain_objs.append(val)
-
         # Sort by when last accessed
-        domain_objs.sort(key=lambda r: r.last_accessed,reverse=True)
-        for domain in domain_objs:
+        self.db.values().sort(key=lambda r: r.last_accessed,reverse=True)
+        for domain in self.db.values():
             print(domain)
+
+    def search(self,phrase):
+        all_notes = []
+        all_passwords = []
+        for dom in self.db.values():
+            for pw in dom.passwords:
+                all_notes.append(pw.notes)
+                all_passwords.append((dom,pw))
+
+        matches = difflib.get_close_matches(phrase,all_notes,cutoff=0.6,n=1)
+        # Find the match
+        try:
+            if len(matches)==0:
+                print("Could not find a password who's note is similar to query: {}".format(phrase))
+                return False
+            idx = all_notes.index(matches[0])
+            tupl = all_passwords[idx]
+            tupl[0].last_accessed = now()
+            tupl[1].last_accessed = now()
+
+            print("Found password: ")
+            print(tupl[0])
+            print(tupl[1])
+            print(tupl[1].password)
+
+            return True
+
+        except ValueError:
+            print("Could not find a password who's note is similar to query: {}".format(phrase))
+            return False
+
+
 
     def get(self,domain):
         domain_names = self.db.keys()
@@ -112,7 +151,7 @@ class PasswordStore:
         chosen_pw = self.db[best_domain].select_password()
         if chosen_pw==False:
             print("Could not find password, exiting")
-            sys.exit(1)
+            return False
 
         print(chosen_pw.password)
 
@@ -139,7 +178,7 @@ class PasswordStore:
         return r
 
 def get_close_string(list_options,search_str):
-    matches = difflib.get_close_matches(search_str,list_options,cutoff=0.7)
+    matches = difflib.get_close_matches(search_str,list_options,cutoff=0.7,n=1)
     if len(matches)==0:
         return None
     return matches[0]
