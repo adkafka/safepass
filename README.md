@@ -1,36 +1,35 @@
-# Design choices
-- Use openssl CLI for encryption/decryption, key generation
-    - Assuming we have a file called 'encryptme' and a file 'key' generated with openssl ``openssl enc -aes-256-cbc -p pass:secret -P -md sha256`` where secret is really just some noise to make 
-    - Encrypt with ``openssl enc -aes-256-cbc -e -in encryptme -out encrypted -pass file:key``
-    - Decrypt with ``openssl enc -aes-256-cbc -d -in encrypted -pass file:key``
+# SafePass
+A simple, safe password storage system. safepass works by keeping an encrypted password safe at the location specified in your configuration file. The safe maps passwords at the 'domain' level, allowing multiple passwords per 'domain', and simple search. All interaction with passwords is via stdin or the clipboard. When a password is requested from the safe, it is copied to the clipboard for 60 seconds, after which it is over written.
 
-- We will choose one of the algorithms given ``openssl ciphers -v 'AES+HIGH'``
+The configuration file is stored in ~/.safepass.
 
-- Or, use gpg (what pass uses)
-    - Encrypt file.txt ``gpg -o filename --symmetric --cipher-algo AES256 file.txt``
-    - ``gpg -o og_file.txt -d file.txt.gpg``
-    - Can't use a salt?
+## Instalation
+### Dependencies
+You need a modern gpg tool installed on the machine (`brew install gpg`). 
 
-- I think we should encrypt the randomly generated key, such that for proper authentication, someone would need the key, the password store, and the master password (what we encrypt the key with). This is sometimes done on ssh private keys, so we should be able to follow the same steps, and openssl understands those keys.
-    - We could store the salt locally. Then when we need the key, we generate it with ``openssl enc -aes-256-cbc -S 33B4E326D1EB90E7 -P -md sha256 -pass stdin``, which will take input from stdin as the password.
+Additionally, you will need python2.7 with the gnupg python wrapper (`pip install python-gnupg`).
 
-# Resources
+If there are any issues, please let us know so we can fix them!
 
-[OpenSSL Man page](https://www.openssl.org/docs/man1.0.1/apps/openssl.html)
+This was developed and tested on a Mac. This can be easily ported to linux by modifying the ClibBoard.py file to work with your system's clipboard manager.
 
-[Intro page](https://users.dcc.uchile.cl/~pcamacho/tutorial/crypto/openssl/openssl_intro.html)
+## Getting started
+After installation, you need to 'initialize' the system, with `$ safepass init`. This will create the configuration file, if it was not previously present. The default path to store the encrypted passwords is ~/.safepassstore, but can be changed to anywhere on your system. If you use Google Drive, DropBox, or a simliar tool, storing the passwords on the cloud is as simple as setting your "pass\_store\_path" to inside the relevant folder.
 
-[AES wiki](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
+Simply execute `$ safepass` to get the help page.
 
-[Security vulnerabilities in password managers](https://team-sik.org/trent_portfolio/password-manager-apps/)
-
-[Paper on password manager databases](https://www.cs.ox.ac.uk/files/6487/pwvault.pdf)
-
-[Google drive api](https://developers.google.com/drive/)
-
-[Improved ssh key encryption](https://martin.kleppmann.com/2013/05/24/improving-security-of-ssh-private-keys.html)
-
-[Tutorial for building Pass (incomplete)](https://github.com/snaptoken/pass-tutorial)
+### Examples:
+```
+$ safepass add Google "my personal google account"
+$ safepass add Google "my work google account"
+$ safepass add Facebook
+$ safepass ls
+$ safepass ls Google
+$ safepass search "work"
+$ safepass get Facebook
+$ safepass edit Facebook note "My current facebook account"
+...
+```
 
 ### Good reference projects (Similar password managers):
 
