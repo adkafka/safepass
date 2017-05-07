@@ -198,7 +198,7 @@ class PasswordStore:
                 newnote = raw_input()
             chosen_pw.notes=newnote
         elif option=="password":
-            new_pass = get_password("Enter new note for the chosen password:")
+            new_pass = get_password(ask="Enter new password:")
             chosen_pw.password = new_pass
 
         return True
@@ -256,7 +256,7 @@ def get_confirmation():
                              "(or 'y' or 'n').\n")
 
 
-def get_password(self,ask="Enter password"):
+def get_password(ask="Enter password"):
     return getpass.getpass(prompt=ask)
 
 def get_close_string(list_options,search_str):
