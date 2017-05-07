@@ -2,6 +2,7 @@
 
 from DillGPG import DillGPG
 from PasswordStore import PasswordStore
+from PasswordStore import get_confirmation
 import json
 import sys
 import os.path
@@ -30,7 +31,8 @@ def init_settings():
 
     # Set up the default settings
     default_settings = { 
-            "pass_store_path" : os.path.join(os.path.expanduser("~"),".safepassstore" )
+            "pass_store_path" : os.path.join(os.path.expanduser("~"),".safepassstore" ),
+            "pass_timeout" : 60
             }
 
     # Save the default settings
@@ -144,12 +146,17 @@ def main():
         pass_store = PasswordStore()
         # Get master password
         master_pass = getpass.getpass(prompt='Enter new MASTER password:')
-        dgpg.save(pass_store,pass_store_path,master_pass )
-        print("Succesfully initialized password store")
-        sys.exit(0)
+        if file_exists_and_not_empty(pass_store_path):
+            print("Are you sure you want to create a new password store?")
+            print("There is already a file present and non-empty at {}".format(pass_store_path))
+            if get_confirmation():
+                dgpg.save(pass_store,pass_store_path,master_pass )
+                print("Succesfully initialized password store")
+            sys.exit(0)
 
     # Get master password
     master_pass = getpass.getpass(prompt='Enter MASTER password:')
+
 
     if not file_exists_and_not_empty(pass_store_path):
         # Make user call init first
@@ -159,6 +166,7 @@ def main():
     else:
         pass_store = dgpg.open(pass_store_path,master_pass )
 
+    pass_store.update_settings(settings)
     # Parse and execute command, then save and exit
     do_command(pass_store)
     dgpg.save(pass_store,pass_store_path,master_pass )

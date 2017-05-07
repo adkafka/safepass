@@ -3,12 +3,12 @@ import os
 import signal
 
 
-def clipboard_clear():
-    time.sleep(60)
-    os.system("echo %s | pbcopy" %"")
-    return True
+def to_clipboard(password, timeout=60):
+    def clipboard_clear():
+        time.sleep(timeout)
+        os.system("echo %s | pbcopy" %"")
+        return True
 
-def to_clipboard(password):
     pid = os.fork()
     if pid == 0:
         clipboard_clear()

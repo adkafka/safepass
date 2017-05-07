@@ -98,6 +98,10 @@ class PasswordStore:
         # Dictionary Domain_name -> Domain_obj
         self.db = {}
         self.id = 1
+        self.clibpoard_timeout=60
+
+    def update_settings(self,settings):
+        self.clibpoard_timeout=settings["pass_timeout"]
 
     def add(self,domain,notes=""):
         print("Adding password to domain: %s"%domain)
@@ -149,7 +153,7 @@ class PasswordStore:
             print(tupl[0], end='')
             print(tupl[1])
 
-            ClipBoard.to_clipboard(tupl[1].password)
+            ClipBoard.to_clipboard(tupl[1].password,self.clibpoard_timeout)
 
             return True
 
@@ -220,7 +224,7 @@ class PasswordStore:
             print("Could not find password, exiting")
             return False
 
-        ClipBoard.to_clipboard(chosen_pw.password)
+        ClipBoard.to_clipboard(chosen_pw.password,self.clibpoard_timeout)
 
         return True
 
