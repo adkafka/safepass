@@ -1,7 +1,6 @@
 import gnupg
 import dill
 import sys
-import getpass
 
 
 class DillGPG:
@@ -9,11 +8,7 @@ class DillGPG:
         self.gpg = gnupg.GPG(gnupghome=gpghome,use_agent=True)
         self.algo = algo
 
-    def get_password(self):
-        return getpass.getpass(prompt='Enter password:')
-
-    def save(self, obj, filename):
-        passwd = self.get_password()
+    def save(self, obj, filename, passwd):
         serialized_string = dill.dumps(obj)
         encrypted_data = self.gpg.encrypt(serialized_string,None,
                 symmetric=self.algo,passphrase=passwd)
@@ -25,8 +20,7 @@ class DillGPG:
             with open(filename,"w") as file_out:
                 file_out.write(encrypted_data.data)
 
-    def open(self, filename):
-        passwd = self.get_password()
+    def open(self, filename, passwd):
         with open(filename,"r") as file_in:
             decrypted_data = self.gpg.decrypt(file_in.read(),passphrase=passwd)
             if decrypted_data.ok != True:

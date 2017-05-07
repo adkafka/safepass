@@ -1,26 +1,29 @@
 #!/usr/bin/env python
 
 from DillGPG import DillGPG
+from PasswordStore import PasswordStore
 import json
 import sys
 import os.path
+import getpass
 
 SAFEPASS_CONFIG = os.path.join(os.path.expanduser("~"),".safepass")
 
 def file_exists_and_not_empty(filename):
-    return os.path.isfile(filename) && os.stat(filename).st_size>0
+    return os.path.isfile(filename) and os.stat(filename).st_size>0
 
 def parse_settings():
+    print("Getting settings from %s"%SAFEPASS_CONFIG)
     if os.path.isfile(SAFEPASS_CONFIG):
         with open(SAFEPASS_CONFIG,"r") as settings_file:
             return json.loads(settings_file.read())
 
     # No user config given, lets provide them the default
-    init()
+    init_settings()
     return parse_settings()
 
 
-def init():
+def init_settings():
     # If the config file already exists, throw error
     if os.path.isfile(SAFEPASS_CONFIG):
         print("Error in initializer, file %s already exists"%SAFEPASS_CONFIG)
@@ -37,12 +40,63 @@ def init():
         settings_file.write(json_str)
         return
 
+def do_command(pass_store):
+    if len(sys.argv)<=1:
+        print_help()
+        sys.exit(0)
+    
+    if sys.argv[1]=="ls":
+        return pass_store.ls()
+
+    if sys.argv[1]=="get":
+        assert(len(sys.argv)>=3)
+        domain_str = sys.argv[2]
+        return pass_store.get(domain_str)
+
+    if sys.argv[1]=="search":
+        assert(len(sys.argv)>=3)
+        search_phrase = sys.argv[2]
+        return pass_store.search(search_phrase)
+
+    if sys.argv[1]=="add":
+        assert(len(sys.argv)>=3)
+        domain = sys.argv[2]
+        if len(sys.argv)>=4:
+            notes = sys.argv[3]
+            return pass_store.add(domain,notes)
+        return pass_store.add(domain)
+
+
+
+
+
 def main():
     settings = parse_settings()
-    if not file_exists_and_not_empty(settings["pass_store_path"]):
-        #initialize object
-        pass_store = {}
+    dgpg = DillGPG()
 
+    pass_store_path = str(settings["pass_store_path"])
+
+    # Get master password
+    master_pass = getpass.getpass(prompt='Enter MASTER password:')
+
+    # check for init
+    if sys.argv[1]=="init":
+        pass_store = PasswordStore()
+        dgpg.save(pass_store,pass_store_path,master_pass )
+        print("Succesfully initialized password store")
+        sys.exit(0)
+
+    if not file_exists_and_not_empty(pass_store_path):
+        # Make user call init first
+        print("Can't find password safe (%s)!"%pass_store_path)
+        print("Please rerun with 'init'")
+        sys.exit(0)
+    else:
+        pass_store = dgpg.open(pass_store_path,master_pass )
+
+    # Parse and execute command, then save and exit
+    do_command(pass_store)
+    dgpg.save(pass_store,pass_store_path,master_pass )
 
 
 if __name__ == '__main__':
