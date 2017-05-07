@@ -177,7 +177,7 @@ class PasswordStore:
             if len(chosen_dom.passwords)==0:
                 del self.db[best_domain]
 
-    def edit(self,domain,option,newnote=""):
+    def edit(self,domain,option="password",newnote=""):
         domain_names = self.db.keys()
         best_domain = get_close_string(domain_names,domain)
         # Couldn't find

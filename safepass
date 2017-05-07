@@ -70,10 +70,12 @@ def do_command(pass_store):
         return pass_store.rm(domain_str)
 
     if sys.argv[1]=="edit":
-        assert(len(sys.argv)>=4)
+        assert(len(sys.argv)>=3)
         domain = sys.argv[2]
-        option = sys.argv[3]
-        return pass_store.edit(domain,option)
+        if len(sys.argv)>=4:
+            option = sys.argv[3]
+            return pass_store.edit(domain,option)
+        return pass_store.edit(domain)
 
 
 
