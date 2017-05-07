@@ -13,7 +13,6 @@ def file_exists_and_not_empty(filename):
     return os.path.isfile(filename) and os.stat(filename).st_size>0
 
 def parse_settings():
-    print("Getting settings from %s"%SAFEPASS_CONFIG)
     if os.path.isfile(SAFEPASS_CONFIG):
         with open(SAFEPASS_CONFIG,"r") as settings_file:
             return json.loads(settings_file.read())
@@ -41,11 +40,10 @@ def init_settings():
         return
 
 def do_command(pass_store):
-    if len(sys.argv)<=1:
-        print_help()
-        sys.exit(0)
-    
     if sys.argv[1]=="ls":
+        if len(sys.argv)>=3:
+            domain_str = sys.argv[2]
+            return pass_store.ls(domain_str)
         return pass_store.ls()
 
     if sys.argv[1]=="get":
@@ -66,8 +64,53 @@ def do_command(pass_store):
             return pass_store.add(domain,notes)
         return pass_store.add(domain)
 
+    if sys.argv[1]=="rm":
+        assert(len(sys.argv)>=3)
+        domain_str = sys.argv[2]
+        return pass_store.rm(domain_str)
+
+    if sys.argv[1]=="edit":
+        assert(len(sys.argv)>=4)
+        domain = sys.argv[2]
+        option = sys.argv[3]
+        return pass_store.edit(domain,option)
 
 
+
+def print_help():
+    help_message = """
+safepass: A simple, safe password storage system. safepass works by keeping an encrypted password safe at the location specified in your configuration file. The safe maps passwords at the 'domain' level, allowing multiple passwords per 'domain', and simple search. All interaction with passwords is via stdin or the clipboard. When a password is requested from the safe, it is copied to the clipboard for 60 seconds, after which it is over written.
+
+The settings file is stored in ~/.safepass. It is a json file, so you must keep it as correct syntax
+
+$ safepass [command] [parameters]
+
+    safepass ls [domain]
+        
+        List the password store's meta-information at the global level (show domain summaries). If a domain is specified, we will show that domains meta-information as well as all entries in that domain.
+
+    safepass get domain
+
+        Retrieve the password from the given domain. You must specify which password if there are multiple in the domiain.
+
+    safepass search "query string"
+
+        Search through all notes for the given query string. The first result will be returned. 
+
+    safepass add domain [note]
+
+        Add a new entry, at the given domain. The new password will be prompted from stdin. An optional note can be added as well.
+
+    safepass rm domain
+
+        Remove an entry at this domain. If it is the only entry at this domain, remove the domain as well.
+
+    safepass edit domain (note/password) ["note"]
+        
+        Change the note or password for a particular entry in the domain. If editting a note, it can be passed in via an additional argument. Otherwise, it will be prompted for.
+
+    """
+    print(help_message)
 
 
 def main():
@@ -76,15 +119,21 @@ def main():
 
     pass_store_path = str(settings["pass_store_path"])
 
-    # Get master password
-    master_pass = getpass.getpass(prompt='Enter MASTER password:')
+    if len(sys.argv)<=1:
+        print_help()
+        sys.exit(0)
 
     # check for init
     if sys.argv[1]=="init":
         pass_store = PasswordStore()
+        # Get master password
+        master_pass = getpass.getpass(prompt='Enter new MASTER password:')
         dgpg.save(pass_store,pass_store_path,master_pass )
         print("Succesfully initialized password store")
         sys.exit(0)
+
+    # Get master password
+    master_pass = getpass.getpass(prompt='Enter MASTER password:')
 
     if not file_exists_and_not_empty(pass_store_path):
         # Make user call init first
