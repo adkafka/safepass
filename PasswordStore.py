@@ -3,6 +3,7 @@ import datetime
 import getpass
 import time
 import difflib
+import ClipBoard
 
 
 class Domain:
@@ -153,8 +154,8 @@ class PasswordStore:
             print("Could not find password, exiting")
             return False
 
-        print(chosen_pw.password)
-
+        #print(chosen_pw.password)
+        ClipBoard.to_clipboard(chosen_pw.password)
         return True
 
 
@@ -187,3 +188,6 @@ def now():
 
 def time_str(time_obj):
     return time_obj.strftime("%Y-%m-%d %H:%M")
+
+
+
