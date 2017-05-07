@@ -128,14 +128,14 @@ class PasswordStore:
         all_passwords = []
         for dom in self.db.values():
             for pw in dom.passwords:
-                all_notes.append(pw.notes)
+                all_notes.append(pw.notes.lower())
                 all_passwords.append((dom,pw))
 
         # Find exact match
         matches = [s for s in all_notes if phrase in s]
         if len(matches)==0:
             # Find close match
-            matches = difflib.get_close_matches(phrase,all_notes,cutoff=0.6,n=1)
+            matches = difflib.get_close_matches(phrase.lower(),all_notes,cutoff=0.6,n=1)
         try:
             if len(matches)==0:
                 print("Could not find a password who's note is similar to query: {}".format(phrase))
@@ -148,7 +148,8 @@ class PasswordStore:
             print("Found password: ")
             print(tupl[0], end='')
             print(tupl[1])
-            print(tupl[1].password)
+
+            ClipBoard.to_clipboard(tupl[1].password)
 
             return True
 
@@ -217,8 +218,8 @@ class PasswordStore:
             print("Could not find password, exiting")
             return False
 
-        #print(chosen_pw.password)
         ClipBoard.to_clipboard(chosen_pw.password)
+
         return True
 
 

@@ -79,35 +79,49 @@ def do_command(pass_store):
 
 def print_help():
     help_message = """
-safepass: A simple, safe password storage system. safepass works by keeping an encrypted password safe at the location specified in your configuration file. The safe maps passwords at the 'domain' level, allowing multiple passwords per 'domain', and simple search. All interaction with passwords is via stdin or the clipboard. When a password is requested from the safe, it is copied to the clipboard for 60 seconds, after which it is over written.
+safepass: A simple, safe password storage system. safepass works by keeping 
+an encrypted password safe at the location specified in your configuration 
+file. The safe maps passwords at the 'domain' level, allowing multiple 
+passwords per 'domain', and simple search. All interaction with passwords 
+is via stdin or the clipboard. When a password is requested from the safe,
+it is copied to the clipboard for 60 seconds, after which it is over written.
 
-The settings file is stored in ~/.safepass. It is a json file, so you must keep it as correct syntax
+The settings file is stored in ~/.safepass. It is a json file, so you must 
+keep it as correct syntax
 
 $ safepass [command] [parameters]
 
     safepass ls [domain]
         
-        List the password store's meta-information at the global level (show domain summaries). If a domain is specified, we will show that domains meta-information as well as all entries in that domain.
+        List the password store's meta-information at the global level 
+        (show domain summaries). If a domain is specified, we will show 
+        that domains meta-information as well as all entries in that domain.
 
     safepass get domain
 
-        Retrieve the password from the given domain. You must specify which password if there are multiple in the domiain.
+        Retrieve the password from the given domain. You must specify 
+        which password if there are multiple in the domiain.
 
     safepass search "query string"
 
-        Search through all notes for the given query string. The first result will be returned. 
+        Search through all notes for the given query string. The first 
+        result will be returned. 
 
     safepass add domain [note]
 
-        Add a new entry, at the given domain. The new password will be prompted from stdin. An optional note can be added as well.
+        Add a new entry, at the given domain. The new password 
+        will be prompted from stdin. An optional note can be added as well.
 
     safepass rm domain
 
-        Remove an entry at this domain. If it is the only entry at this domain, remove the domain as well.
+        Remove an entry at this domain. If it is the only entry at this 
+        domain, remove the domain as well.
 
     safepass edit domain (note/password) ["note"]
         
-        Change the note or password for a particular entry in the domain. If editting a note, it can be passed in via an additional argument. Otherwise, it will be prompted for.
+        Change the note or password for a particular entry in the domain. 
+        If editting a note, it can be passed in via an additional argument. 
+        Otherwise, it will be prompted for.
 
     """
     print(help_message)
