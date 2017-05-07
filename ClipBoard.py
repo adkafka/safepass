@@ -4,7 +4,7 @@ import signal
 
 
 def clipboard_clear():
-    time.sleep(5)
+    time.sleep(60)
     os.system("echo %s | pbcopy" %"")
     return True
 
