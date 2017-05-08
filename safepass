@@ -145,13 +145,18 @@ def main():
     if sys.argv[1]=="init":
         pass_store = PasswordStore()
         # Get master password
-        master_pass = getpass.getpass(prompt='Enter new MASTER password:')
         if file_exists_and_not_empty(pass_store_path):
             print("Are you sure you want to create a new password store?")
             print("There is already a file present and non-empty at {}".format(pass_store_path))
             if get_confirmation():
+                master_pass = getpass.getpass(prompt='Enter new MASTER password:')
                 dgpg.save(pass_store,pass_store_path,master_pass )
                 print("Succesfully initialized password store")
+            sys.exit(0)
+        else:
+            master_pass = getpass.getpass(prompt='Enter new MASTER password:')
+            dgpg.save(pass_store,pass_store_path,master_pass )
+            print("Succesfully initialized password store")
             sys.exit(0)
 
     # Get master password
